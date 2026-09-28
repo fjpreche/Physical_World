@@ -1,7 +1,7 @@
 """Entry point for the PX1016 interactive physics illustrations app."""
 import streamlit as st
 
-from chapters import kinematics_1d, kinematics_2d, newtons_laws, projectile_motion
+from chapters import gravitation, gravitation_orbit, kinematics_1d, kinematics_2d, newtons_laws, normal_friction, projectile_motion
 
 st.set_page_config(page_title="The Physical World: Interactive Illustrations", layout="wide")
 
@@ -20,6 +20,14 @@ CHAPTERS = {
     },
     "4. Newton's laws of motion": {
         "Two ice skaters push apart": newtons_laws.render_ice_skaters_push,
+    },
+    "5. Gravitation": {
+        "Free fall on two bodies": gravitation.render_compare_free_fall,
+        "Satellite around Earth": gravitation_orbit.render_earth_satellite_orbit,
+        "ISS and apparent weightlessness": gravitation_orbit.render_iss_weightlessness,
+    },
+    "6. Normal force and friction": {
+        "Box pushed across a table": normal_friction.render_box_with_friction,
     },
 }
 

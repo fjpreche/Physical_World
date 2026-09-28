@@ -160,6 +160,25 @@ def render_accelerate_cruise_decelerate():
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+    acceleration_fig = go.Figure(
+        data=[
+            go.Scatter(
+                x=[0, t_r, t_r, t_r + T, t_r + T, t_total],
+                y=[a, a, 0, 0, -a, -a],
+                mode="lines",
+                name="a(t)",
+                line=dict(color="darkorange", width=3),
+            )
+        ],
+        layout=go.Layout(
+            height=300,
+            xaxis=dict(title="time, t (s)", range=[0, t_total]),
+            yaxis=dict(title="acceleration, a (m/s^2)", range=[-1.25 * a, 1.25 * a]),
+            showlegend=False,
+        ),
+    )
+    st.plotly_chart(acceleration_fig, use_container_width=True)
     st.caption(
         f"Total time: {t_total:g} s — Total distance: {x_max:g} m "
         f"(accel/decel each cover {x_ramp:g} m, cruise covers {v * T:g} m)"
