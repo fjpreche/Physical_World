@@ -109,6 +109,38 @@ def render_constant_velocity():
     st.caption(f"Total displacement after T = {T:g} s: v·T = {x_max:g} m")
 
 
+def render_constant_acceleration():
+    st.markdown(
+        "A particle starts with initial velocity $v_0$ and moves with "
+        "constant acceleration $a$ for $T$ seconds. Acceleration may be "
+        "positive or negative."
+    )
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        v0 = st.slider("Initial velocity, v0 (m/s)", min_value=-10.0, max_value=10.0, value=2.0, step=0.5)
+    with col2:
+        a = st.slider("Acceleration, a (m/s^2)", min_value=-5.0, max_value=5.0, value=1.0, step=0.5)
+    with col3:
+        T = st.slider("Duration, T (s)", min_value=1.0, max_value=20.0, value=10.0, step=0.5)
+
+    t = np.linspace(0, T, 80)
+    v_t = v0 + a * t
+    x_t = v0 * t + 0.5 * a * t ** 2
+    x_min, x_max = float(x_t.min()), float(x_t.max())
+    pad = max(1.0, 0.1 * (x_max - x_min))
+    v_min, v_max = float(v_t.min()), float(v_t.max())
+    v_pad = max(1.0, 0.1 * (v_max - v_min))
+
+    fig = _build_animation_figure(
+        t, v_t, x_t,
+        v_range=[v_min - v_pad, v_max + v_pad],
+        x_range=[x_min - pad, x_max + pad],
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(f"Final velocity: {v_t[-1]:g} m/s — Displacement: {x_t[-1]:g} m")
+
+
 def render_accelerate_cruise_decelerate():
     st.markdown(
         "A particle **accelerates** from rest to speed $v$ over $t_r$ seconds, "

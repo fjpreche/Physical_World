@@ -9,10 +9,12 @@ st.set_page_config(page_title="The Physical World: Interactive Illustrations", l
 CHAPTERS = {
     "1. Kinematics in one dimension": {
         "Constant velocity motion": kinematics_1d.render_constant_velocity,
+        "Constant acceleration from initial velocity": kinematics_1d.render_constant_acceleration,
         "Accelerate, cruise, decelerate": kinematics_1d.render_accelerate_cruise_decelerate,
     },
     "2. Kinematics in two dimensions": {
         "Constant velocity motion": kinematics_2d.render_constant_velocity_2d,
+        "Constant acceleration": kinematics_2d.render_constant_acceleration_2d,
     },
     "3. Projectile motion": {
         "Launch from height h": projectile_motion.render_projectile,
