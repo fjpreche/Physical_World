@@ -1,6 +1,7 @@
 """Illustrations for Projectile motion."""
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import streamlit as st
 
 
@@ -36,58 +37,82 @@ def render_projectile():
     y_min, y_max = 0.0, max(h, y.max())
     x_pad = 0.05 * max(x_max - x_min, 1.0)
     y_pad = 0.05 * max(y_max - y_min, 1.0)
+    vx_pad = max(0.5, 0.05 * abs(vx_t[-1] - vx_t[0]))
+    vy_pad = max(0.5, 0.05 * abs(vy_t[-1] - vy_t[0]))
 
-    fig = go.Figure(
-        data=[
-            go.Scatter(
-                x=x, y=y, mode="lines", line=dict(color="lightgray", dash="dash"), name="path",
-            ),
-            go.Scatter(
-                x=[x[0]], y=[y[0]], mode="markers", marker=dict(size=20, color="crimson"),
-                name="projectile",
-            ),
+    fig = make_subplots(
+        rows=1,
+        cols=2,
+        subplot_titles=("Trajectory", "Velocity space"),
+        horizontal_spacing=0.12,
+    )
+    fig.add_trace(
+        go.Scatter(x=x, y=y, mode="lines", line=dict(color="lightgray", dash="dash"), name="path"),
+        row=1, col=1,
+    )
+    fig.add_trace(
+        go.Scatter(x=[x[0]], y=[y[0]], mode="markers", marker=dict(size=20, color="crimson"), name="projectile"),
+        row=1, col=1,
+    )
+    fig.add_trace(
+        go.Scatter(x=[vx_t[0]], y=[vy_t[0]], mode="lines", line=dict(color="seagreen", width=3), name="velocity path"),
+        row=1, col=2,
+    )
+    fig.add_trace(
+        go.Scatter(x=[vx_t[0]], y=[vy_t[0]], mode="markers", marker=dict(size=12, color="darkorange"), name="current velocity"),
+        row=1, col=2,
+    )
+    fig.update_layout(
+        width=1100,
+        height=600,
+        showlegend=False,
+        xaxis=dict(title="x (m)", range=[x_min - x_pad, x_max + x_pad]),
+        yaxis=dict(title="y (m)", range=[y_min - y_pad, y_max + y_pad], scaleanchor="x", scaleratio=1),
+        xaxis2=dict(title="vx (m/s)", range=[vx_t[0] - vx_pad, vx_t[-1] + vx_pad]),
+        yaxis2=dict(title="vy (m/s)", range=[min(vy_t[0], vy_t[-1]) - vy_pad, max(vy_t[0], vy_t[-1]) + vy_pad]),
+        updatemenus=[
+            dict(
+                type="buttons",
+                showactive=False,
+                y=1.1,
+                x=0.0,
+                xanchor="left",
+                buttons=[
+                    dict(label="Play", method="animate",
+                         args=[None, dict(frame=dict(duration=50, redraw=True), fromcurrent=True, transition=dict(duration=0))]),
+                    dict(label="Pause", method="animate",
+                         args=[[None], dict(frame=dict(duration=0, redraw=False), mode="immediate")]),
+                ],
+            )
         ],
-        layout=go.Layout(
-            width=650, height=550,
-            xaxis=dict(title="x (m)", range=[x_min - x_pad, x_max + x_pad]),
-            yaxis=dict(title="y (m)", range=[y_min - y_pad, y_max + y_pad], scaleanchor="x", scaleratio=1),
-            showlegend=False,
-            updatemenus=[
-                dict(
-                    type="buttons",
-                    showactive=False,
-                    y=1.1,
-                    x=0.0,
-                    xanchor="left",
-                    buttons=[
-                        dict(label="Play", method="animate",
-                             args=[None, dict(frame=dict(duration=50, redraw=True), fromcurrent=True, transition=dict(duration=0))]),
-                        dict(label="Pause", method="animate",
-                             args=[[None], dict(frame=dict(duration=0, redraw=False), mode="immediate")]),
-                    ],
-                )
-            ],
-            sliders=[
-                dict(
-                    steps=[
-                        dict(
-                            method="animate",
-                            args=[[f"frame{i}"], dict(mode="immediate", frame=dict(duration=0, redraw=True), transition=dict(duration=0))],
-                            label=f"{ti:.2f}",
-                        )
-                        for i, ti in enumerate(t)
-                    ],
-                    x=0.0, y=-0.05, len=1.0,
-                )
-            ],
-        ),
-        frames=[
-            go.Frame(name=f"frame{i}", data=[go.Scatter(), go.Scatter(x=[x[i]], y=[y[i]])])
-            for i in range(n_frames)
+        sliders=[
+            dict(
+                steps=[
+                    dict(
+                        method="animate",
+                        args=[[f"frame{i}"], dict(mode="immediate", frame=dict(duration=0, redraw=True), transition=dict(duration=0))],
+                        label=f"{ti:.2f}",
+                    )
+                    for i, ti in enumerate(t)
+                ],
+                x=0.0, y=-0.05, len=1.0,
+            )
         ],
     )
+    fig.frames = [
+        go.Frame(
+            name=f"frame{i}",
+            data=[
+                go.Scatter(x=[x[i]], y=[y[i]]),
+                go.Scatter(x=vx_t[:i + 1], y=vy_t[:i + 1]),
+                go.Scatter(x=[vx_t[i]], y=[vy_t[i]]),
+            ],
+            traces=[1, 2, 3],
+        )
+        for i in range(n_frames)
+    ]
 
-    st.plotly_chart(fig, use_container_width=False)
+    st.plotly_chart(fig, use_container_width=True)
     st.caption(f"Time of flight: {t_end:g} s — Range: {x[-1]:g} m")
 
     vel_fig = go.Figure(
